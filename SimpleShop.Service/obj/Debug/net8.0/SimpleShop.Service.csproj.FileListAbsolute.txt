@@ -1,0 +1,15 @@
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\bin\Debug\net8.0\SimpleShop.Service.deps.json
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\bin\Debug\net8.0\SimpleShop.Service.dll
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\bin\Debug\net8.0\SimpleShop.Service.pdb
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\bin\Debug\net8.0\SimpleShop.Repo.dll
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\bin\Debug\net8.0\SimpleShop.Repo.pdb
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.csproj.AssemblyReference.cache
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.GeneratedMSBuildEditorConfig.editorconfig
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.AssemblyInfoInputs.cache
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.AssemblyInfo.cs
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.csproj.CoreCompileInputs.cache
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleSh.E9A8A52D.Up2Date
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.dll
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\refint\SimpleShop.Service.dll
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.pdb
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\ref\SimpleShop.Service.dll
