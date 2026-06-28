@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using SimpleShop.Service.DTOs;
 using SimpleShop.Service.Services;
 
@@ -9,12 +10,15 @@ namespace SimpleShop.API.Controllers;
 [Route("api/products")]
 public class ProductsController(IProductService service) : ControllerBase
 {
+    private int? AccountId =>
+        int.TryParse(User.FindFirstValue("accountId"), out var accountId) ? accountId : null;
+
     [HttpGet]
     public async Task<IActionResult> GetActive() =>
         Ok(await service.GetAllAsync(false));
 
     [HttpGet("all")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IActionResult> GetAll() =>
         Ok(await service.GetAllAsync(true));
 
@@ -47,12 +51,12 @@ public class ProductsController(IProductService service) : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IActionResult> Create(ProductRequest request)
     {
         try
         {
-            var product = await service.CreateAsync(request);
+            var product = await service.CreateAsync(request, AccountId);
             return CreatedAtAction(nameof(GetById), new { id = product.ProductId }, product);
         }
         catch (ArgumentException exception)
@@ -62,7 +66,7 @@ public class ProductsController(IProductService service) : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IActionResult> Update(int id, ProductRequest request)
     {
         try
@@ -78,7 +82,7 @@ public class ProductsController(IProductService service) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IActionResult> SoftDelete(int id) =>
         await service.SoftDeleteAsync(id)
             ? NoContent()
