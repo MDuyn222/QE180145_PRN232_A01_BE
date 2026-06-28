@@ -8,6 +8,7 @@ D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\n
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.AssemblyInfoInputs.cache
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.AssemblyInfo.cs
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.csproj.CoreCompileInputs.cache
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.sourcelink.json
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleSh.E9A8A52D.Up2Date
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\SimpleShop.Service.dll
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.Service\obj\Debug\net8.0\refint\SimpleShop.Service.dll

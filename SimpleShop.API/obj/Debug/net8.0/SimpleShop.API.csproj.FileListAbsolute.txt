@@ -5,6 +5,7 @@ D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\bin\Debug\net8.
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\bin\Debug\net8.0\SimpleShop.API.runtimeconfig.json
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\bin\Debug\net8.0\SimpleShop.API.dll
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\bin\Debug\net8.0\SimpleShop.API.pdb
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\bin\Debug\net8.0\BCrypt.Net-Next.dll
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
@@ -34,6 +35,7 @@ D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\SimpleShop.API.csproj.CoreCompileInputs.cache
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\SimpleShop.API.MvcApplicationPartsAssemblyInfo.cs
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\SimpleShop.API.MvcApplicationPartsAssemblyInfo.cache
+D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\SimpleShop.API.sourcelink.json
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\rjimswa.dswa.cache.json
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
@@ -43,7 +45,6 @@ D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\staticwebassets.development.json
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\staticwebassets.build.endpoints.json
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\swae.build.ex.cache
-D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\SimpleSh.ED98BF85.Up2Date
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\SimpleShop.API.dll
 D:\KI8\QE180145_PRN232_A01\QE180145_PRN232_A01_BE\SimpleShop.API\obj\Debug\net8.0\refint\SimpleShop.API.dll
