@@ -27,6 +27,9 @@ public interface IProductService
 
 internal static class DtoMapper
 {
+    public static DateTime Now() =>
+        DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
+
     public static CategoryDto ToDto(Category category) =>
         new(category.CategoryId, category.CategoryName, category.CategoryDescription, category.IsActive);
 
@@ -154,7 +157,7 @@ public class ProductService(
             CategoryId = request.CategoryId,
             AccountId = accountId,
             IsActive = request.IsActive,
-            CreatedDate = DateTime.Now
+            CreatedDate = DtoMapper.Now()
         });
 
         return DtoMapper.ToDto(product);
@@ -180,7 +183,7 @@ public class ProductService(
         product.ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl.Trim();
         product.CategoryId = request.CategoryId;
         product.IsActive = request.IsActive;
-        product.ModifiedDate = DateTime.Now;
+        product.ModifiedDate = DtoMapper.Now();
         await repository.UpdateAsync(product);
         return true;
     }
@@ -194,12 +197,13 @@ public class ProductService(
         }
 
         product.IsActive = false;
-        product.ModifiedDate = DateTime.Now;
+        product.ModifiedDate = DtoMapper.Now();
         await repository.UpdateAsync(product);
         return true;
     }
 }
 
+// ==================== ACCOUNT ====================
 public interface IAccountService
 {
     Task<(AccountDto? Account, string? Error)> RegisterAsync(RegisterRequest request);
@@ -211,9 +215,7 @@ public class AccountService(IAccountRepository repository) : IAccountService
     public async Task<(AccountDto? Account, string? Error)> RegisterAsync(RegisterRequest request)
     {
         if (await repository.EmailExistsAsync(request.Email.Trim()))
-        {
             return (null, "Email already registered.");
-        }
 
         var account = await repository.AddAsync(new Account
         {
@@ -228,15 +230,12 @@ public class AccountService(IAccountRepository repository) : IAccountService
     public async Task<Account?> ValidateAsync(string email, string password)
     {
         var account = await repository.GetByEmailAsync(email.Trim());
-        if (account is null)
-        {
-            return null;
-        }
-
+        if (account is null) return null;
         return BCrypt.Net.BCrypt.Verify(password, account.PasswordHash) ? account : null;
     }
 }
 
+// ==================== CART ====================
 public interface ICartService
 {
     Task<CartDto> GetCartAsync(int accountId);
@@ -256,19 +255,14 @@ public class CartService(ICartRepository cartRepository, IProductRepository prod
     public async Task<(bool Success, string? Error)> AddToCartAsync(int accountId, AddToCartRequest request)
     {
         var product = await productRepository.GetByIdAsync(request.ProductId, false);
-        if (product is null)
-        {
-            return (false, "Product not found or unavailable.");
-        }
+        if (product is null) return (false, "Product not found or unavailable.");
 
         var cart = await cartRepository.GetOrCreateCartAsync(accountId);
         var existing = await cartRepository.GetCartItemAsync(cart.CartId, request.ProductId);
 
         var newQty = (existing?.Quantity ?? 0) + request.Quantity;
         if (newQty > product.StockQuantity)
-        {
             return (false, $"Only {product.StockQuantity} item(s) in stock.");
-        }
 
         if (existing is not null)
         {
@@ -284,33 +278,19 @@ public class CartService(ICartRepository cartRepository, IProductRepository prod
                 Quantity = request.Quantity
             });
         }
-
         return (true, null);
     }
 
     public async Task<(bool Success, string? Error)> UpdateCartItemAsync(int accountId, int cartItemId, UpdateCartItemRequest request)
     {
         var cart = await cartRepository.GetByAccountIdAsync(accountId);
-        if (cart is null)
-        {
-            return (false, "Cart not found.");
-        }
+        if (cart is null) return (false, "Cart not found.");
 
         var item = await cartRepository.GetCartItemByIdAsync(cartItemId);
-        if (item is null || item.CartId != cart.CartId)
-        {
-            return (false, "Item not found.");
-        }
+        if (item is null || item.CartId != cart.CartId) return (false, "Item not found.");
 
-        if (item.Product is null)
-        {
-            return (false, "Product not found or unavailable.");
-        }
-
-        if (request.Quantity > item.Product.StockQuantity)
-        {
+        if (request.Quantity > item.Product!.StockQuantity)
             return (false, $"Only {item.Product.StockQuantity} item(s) in stock.");
-        }
 
         item.Quantity = request.Quantity;
         await cartRepository.UpdateCartItemAsync(item);
@@ -320,16 +300,10 @@ public class CartService(ICartRepository cartRepository, IProductRepository prod
     public async Task<(bool Success, string? Error)> RemoveCartItemAsync(int accountId, int cartItemId)
     {
         var cart = await cartRepository.GetByAccountIdAsync(accountId);
-        if (cart is null)
-        {
-            return (false, "Cart not found.");
-        }
+        if (cart is null) return (false, "Cart not found.");
 
         var item = cart.CartItems.FirstOrDefault(ci => ci.CartItemId == cartItemId);
-        if (item is null)
-        {
-            return (false, "Item not found.");
-        }
+        if (item is null) return (false, "Item not found.");
 
         await cartRepository.RemoveCartItemAsync(item);
         return (true, null);
@@ -348,11 +322,11 @@ public class CartService(ICartRepository cartRepository, IProductRepository prod
                 ci.Quantity,
                 ci.Product.Price * ci.Quantity))
             .ToList();
-
         return new CartDto(cart.CartId, items, items.Sum(i => i.Subtotal));
     }
 }
 
+// ==================== ORDER ====================
 public interface IOrderService
 {
     Task<(OrderDto? Order, string? Error)> CheckoutAsync(int accountId);
@@ -360,32 +334,28 @@ public interface IOrderService
     Task<OrderDto?> GetOrderAsync(int orderId, int accountId);
 }
 
-public class OrderService(ICartRepository cartRepository, IOrderRepository orderRepository) : IOrderService
+public class OrderService(
+    IOrderRepository orderRepository,
+    ICartRepository cartRepository,
+    IProductRepository productRepository) : IOrderService
 {
     public async Task<(OrderDto? Order, string? Error)> CheckoutAsync(int accountId)
     {
         var cart = await cartRepository.GetByAccountIdAsync(accountId);
         if (cart is null || !cart.CartItems.Any())
-        {
             return (null, "Cart is empty.");
-        }
 
+        var checkedItems = new List<(CartItem CartItem, Product Product)>();
         var orderItems = new List<OrderItem>();
-
         foreach (var ci in cart.CartItems)
         {
             var product = ci.Product;
-
             if (product is null || !product.IsActive)
-            {
                 return (null, $"Product '{ci.ProductId}' is no longer available.");
-            }
-
             if (ci.Quantity > product.StockQuantity)
-            {
                 return (null, $"Insufficient stock for '{product.ProductName}'.");
-            }
 
+            checkedItems.Add((ci, product));
             orderItems.Add(new OrderItem
             {
                 ProductId = ci.ProductId,
@@ -394,11 +364,11 @@ public class OrderService(ICartRepository cartRepository, IOrderRepository order
             });
         }
 
-        foreach (var ci in cart.CartItems)
+        foreach (var (ci, product) in checkedItems)
         {
-            var product = ci.Product!;
             product.StockQuantity -= ci.Quantity;
-            product.ModifiedDate = DateTime.Now;
+            product.ModifiedDate = DtoMapper.Now();
+            await productRepository.UpdateAsync(product);
         }
 
         var order = await orderRepository.AddAsync(new Order
@@ -431,7 +401,6 @@ public class OrderService(ICartRepository cartRepository, IOrderRepository order
             oi.UnitPrice,
             oi.Quantity,
             oi.UnitPrice * oi.Quantity)).ToList();
-
         return new OrderDto(order.OrderId, order.OrderDate, order.TotalAmount, order.Status, items);
     }
 }

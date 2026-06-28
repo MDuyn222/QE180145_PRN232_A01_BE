@@ -7,7 +7,7 @@ public class Order
 {
     [Key, Column("OrderID")] public int OrderId { get; set; }
     [Column("AccountID")] public int AccountId { get; set; }
-    [Column("OrderDate")] public DateTime OrderDate { get; set; } = DateTime.Now;
+    [Column("OrderDate", TypeName = "timestamp without time zone")] public DateTime OrderDate { get; set; } = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
     [Column("TotalAmount", TypeName = "numeric(18,2)")] public decimal TotalAmount { get; set; }
     [MaxLength(50), Column("Status")] public string Status { get; set; } = "Pending";
 

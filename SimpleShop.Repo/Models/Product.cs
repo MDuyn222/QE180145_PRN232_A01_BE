@@ -12,8 +12,8 @@ public class Product {
  [Column("CategoryID")] public int CategoryId {get;set;}
  [Column("AccountID")] public int? AccountId {get;set;}
  [Column("IsActive")] public bool IsActive {get;set;}=true;
- [Column("CreatedDate")] public DateTime CreatedDate {get;set;}=DateTime.Now;
- [Column("ModifiedDate")] public DateTime? ModifiedDate {get;set;}
+ [Column("CreatedDate", TypeName = "timestamp without time zone")] public DateTime CreatedDate {get;set;}=DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
+ [Column("ModifiedDate", TypeName = "timestamp without time zone")] public DateTime? ModifiedDate {get;set;}
  public Category? Category {get;set;}
  public Account? Account {get;set;}
 }
