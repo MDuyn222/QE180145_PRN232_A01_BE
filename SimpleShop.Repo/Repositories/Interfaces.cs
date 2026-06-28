@@ -22,3 +22,30 @@ public interface IProductRepository
     Task<Product> AddAsync(Product product);
     Task UpdateAsync(Product product);
 }
+
+public interface IAccountRepository
+{
+    Task<Account?> GetByEmailAsync(string email);
+    Task<Account?> GetByIdAsync(int id);
+    Task<Account> AddAsync(Account account);
+    Task<bool> EmailExistsAsync(string email);
+}
+
+public interface ICartRepository
+{
+    Task<Cart?> GetByAccountIdAsync(int accountId);
+    Task<Cart> GetOrCreateCartAsync(int accountId);
+    Task<CartItem?> GetCartItemAsync(int cartId, int productId);
+    Task<CartItem?> GetCartItemByIdAsync(int cartItemId);
+    Task AddCartItemAsync(CartItem item);
+    Task UpdateCartItemAsync(CartItem item);
+    Task RemoveCartItemAsync(CartItem item);
+    Task ClearCartAsync(int cartId);
+}
+
+public interface IOrderRepository
+{
+    Task<List<Order>> GetByAccountIdAsync(int accountId);
+    Task<Order?> GetByIdAsync(int orderId, int accountId);
+    Task<Order> AddAsync(Order order);
+}

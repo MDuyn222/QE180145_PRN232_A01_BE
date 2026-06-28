@@ -197,3 +197,200 @@ public class ProductService(
         return true;
     }
 }
+
+// ==================== ACCOUNT ====================
+public interface IAccountService
+{
+    Task<(AccountDto? Account, string? Error)> RegisterAsync(RegisterRequest request);
+    Task<Account?> ValidateAsync(string email, string password);
+}
+
+public class AccountService(IAccountRepository repository) : IAccountService
+{
+    public async Task<(AccountDto? Account, string? Error)> RegisterAsync(RegisterRequest request)
+    {
+        if (await repository.EmailExistsAsync(request.Email.Trim()))
+            return (null, "Email already registered.");
+
+        var account = await repository.AddAsync(new Account
+        {
+            FullName = request.FullName.Trim(),
+            Email = request.Email.Trim().ToLower(),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
+        });
+
+        return (new AccountDto(account.AccountId, account.FullName, account.Email), null);
+    }
+
+    public async Task<Account?> ValidateAsync(string email, string password)
+    {
+        var account = await repository.GetByEmailAsync(email.Trim());
+        if (account is null) return null;
+        return BCrypt.Net.BCrypt.Verify(password, account.PasswordHash) ? account : null;
+    }
+}
+
+// ==================== CART ====================
+public interface ICartService
+{
+    Task<CartDto> GetCartAsync(int accountId);
+    Task<(bool Success, string? Error)> AddToCartAsync(int accountId, AddToCartRequest request);
+    Task<(bool Success, string? Error)> UpdateCartItemAsync(int accountId, int cartItemId, UpdateCartItemRequest request);
+    Task<(bool Success, string? Error)> RemoveCartItemAsync(int accountId, int cartItemId);
+}
+
+public class CartService(ICartRepository cartRepository, IProductRepository productRepository) : ICartService
+{
+    public async Task<CartDto> GetCartAsync(int accountId)
+    {
+        var cart = await cartRepository.GetOrCreateCartAsync(accountId);
+        return MapToDto(cart);
+    }
+
+    public async Task<(bool Success, string? Error)> AddToCartAsync(int accountId, AddToCartRequest request)
+    {
+        var product = await productRepository.GetByIdAsync(request.ProductId, false);
+        if (product is null) return (false, "Product not found or unavailable.");
+
+        var cart = await cartRepository.GetOrCreateCartAsync(accountId);
+        var existing = await cartRepository.GetCartItemAsync(cart.CartId, request.ProductId);
+
+        var newQty = (existing?.Quantity ?? 0) + request.Quantity;
+        if (newQty > product.StockQuantity)
+            return (false, $"Only {product.StockQuantity} item(s) in stock.");
+
+        if (existing is not null)
+        {
+            existing.Quantity = newQty;
+            await cartRepository.UpdateCartItemAsync(existing);
+        }
+        else
+        {
+            await cartRepository.AddCartItemAsync(new CartItem
+            {
+                CartId = cart.CartId,
+                ProductId = request.ProductId,
+                Quantity = request.Quantity
+            });
+        }
+        return (true, null);
+    }
+
+    public async Task<(bool Success, string? Error)> UpdateCartItemAsync(int accountId, int cartItemId, UpdateCartItemRequest request)
+    {
+        var cart = await cartRepository.GetByAccountIdAsync(accountId);
+        if (cart is null) return (false, "Cart not found.");
+
+        var item = await cartRepository.GetCartItemByIdAsync(cartItemId);
+        if (item is null || item.CartId != cart.CartId) return (false, "Item not found.");
+
+        if (request.Quantity > item.Product!.StockQuantity)
+            return (false, $"Only {item.Product.StockQuantity} item(s) in stock.");
+
+        item.Quantity = request.Quantity;
+        await cartRepository.UpdateCartItemAsync(item);
+        return (true, null);
+    }
+
+    public async Task<(bool Success, string? Error)> RemoveCartItemAsync(int accountId, int cartItemId)
+    {
+        var cart = await cartRepository.GetByAccountIdAsync(accountId);
+        if (cart is null) return (false, "Cart not found.");
+
+        var item = cart.CartItems.FirstOrDefault(ci => ci.CartItemId == cartItemId);
+        if (item is null) return (false, "Item not found.");
+
+        await cartRepository.RemoveCartItemAsync(item);
+        return (true, null);
+    }
+
+    private static CartDto MapToDto(Cart cart)
+    {
+        var items = cart.CartItems
+            .Where(ci => ci.Product is not null)
+            .Select(ci => new CartItemDto(
+                ci.CartItemId,
+                ci.ProductId,
+                ci.Product!.ProductName,
+                ci.Product.ImageUrl,
+                ci.Product.Price,
+                ci.Quantity,
+                ci.Product.Price * ci.Quantity))
+            .ToList();
+        return new CartDto(cart.CartId, items, items.Sum(i => i.Subtotal));
+    }
+}
+
+// ==================== ORDER ====================
+public interface IOrderService
+{
+    Task<(OrderDto? Order, string? Error)> CheckoutAsync(int accountId);
+    Task<List<OrderDto>> GetOrdersAsync(int accountId);
+    Task<OrderDto?> GetOrderAsync(int orderId, int accountId);
+}
+
+public class OrderService(
+    IOrderRepository orderRepository,
+    ICartRepository cartRepository,
+    IProductRepository productRepository) : IOrderService
+{
+    public async Task<(OrderDto? Order, string? Error)> CheckoutAsync(int accountId)
+    {
+        var cart = await cartRepository.GetByAccountIdAsync(accountId);
+        if (cart is null || !cart.CartItems.Any())
+            return (null, "Cart is empty.");
+
+        var orderItems = new List<OrderItem>();
+        foreach (var ci in cart.CartItems)
+        {
+            var product = await productRepository.GetByIdAsync(ci.ProductId, false);
+            if (product is null)
+                return (null, $"Product '{ci.ProductId}' is no longer available.");
+            if (ci.Quantity > product.StockQuantity)
+                return (null, $"Insufficient stock for '{product.ProductName}'.");
+
+            orderItems.Add(new OrderItem
+            {
+                ProductId = ci.ProductId,
+                Quantity = ci.Quantity,
+                UnitPrice = product.Price
+            });
+
+            product.StockQuantity -= ci.Quantity;
+            product.ModifiedDate = DateTime.UtcNow;
+            await productRepository.UpdateAsync(product);
+        }
+
+        var order = await orderRepository.AddAsync(new Order
+        {
+            AccountId = accountId,
+            TotalAmount = orderItems.Sum(oi => oi.UnitPrice * oi.Quantity),
+            OrderItems = orderItems
+        });
+
+        await cartRepository.ClearCartAsync(cart.CartId);
+
+        return (MapToDto(order), null);
+    }
+
+    public async Task<List<OrderDto>> GetOrdersAsync(int accountId) =>
+        (await orderRepository.GetByAccountIdAsync(accountId)).Select(MapToDto).ToList();
+
+    public async Task<OrderDto?> GetOrderAsync(int orderId, int accountId)
+    {
+        var order = await orderRepository.GetByIdAsync(orderId, accountId);
+        return order is null ? null : MapToDto(order);
+    }
+
+    private static OrderDto MapToDto(Order order)
+    {
+        var items = order.OrderItems.Select(oi => new OrderItemDto(
+            oi.OrderItemId,
+            oi.ProductId,
+            oi.Product?.ProductName ?? $"Product #{oi.ProductId}",
+            oi.UnitPrice,
+            oi.Quantity,
+            oi.UnitPrice * oi.Quantity)).ToList();
+        return new OrderDto(order.OrderId, order.OrderDate, order.TotalAmount, order.Status, items);
+    }
+}
