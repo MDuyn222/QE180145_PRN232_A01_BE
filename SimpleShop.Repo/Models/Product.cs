@@ -10,8 +10,10 @@ public class Product {
  [Range(0,int.MaxValue), Column("StockQuantity")] public int StockQuantity {get;set;}
  [MaxLength(500), Column("ImageUrl")] public string? ImageUrl {get;set;}
  [Column("CategoryID")] public int CategoryId {get;set;}
+ [Column("AccountID")] public int? AccountId {get;set;}
  [Column("IsActive")] public bool IsActive {get;set;}=true;
- [Column("CreatedDate")] public DateTime CreatedDate {get;set;}=DateTime.UtcNow;
+ [Column("CreatedDate")] public DateTime CreatedDate {get;set;}=DateTime.Now;
  [Column("ModifiedDate")] public DateTime? ModifiedDate {get;set;}
  public Category? Category {get;set;}
+ public Account? Account {get;set;}
 }

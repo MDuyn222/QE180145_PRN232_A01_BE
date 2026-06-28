@@ -26,6 +26,6 @@ public class OrderRepository(SimpleShopDbContext dbContext) : IOrderRepository
     {
         dbContext.Orders.Add(order);
         await dbContext.SaveChangesAsync();
-        return order;
+        return await GetByIdAsync(order.OrderId, order.AccountId) ?? order;
     }
 }

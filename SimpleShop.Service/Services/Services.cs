@@ -20,7 +20,7 @@ public interface IProductService
     Task<ProductDto?> GetAsync(int id, bool includeInactive = false);
     Task<List<ProductDto>> GetByCategoryAsync(int categoryId);
     Task<List<ProductDto>> SearchAsync(string? name, decimal? minPrice, decimal? maxPrice, int? categoryId);
-    Task<ProductDto> CreateAsync(ProductRequest request);
+    Task<ProductDto> CreateAsync(ProductRequest request, int? accountId);
     Task<bool> UpdateAsync(int id, ProductRequest request);
     Task<bool> SoftDeleteAsync(int id);
 }
@@ -40,6 +40,7 @@ internal static class DtoMapper
             product.ImageUrl,
             product.CategoryId,
             product.Category?.CategoryName,
+            product.AccountId,
             product.IsActive,
             product.CreatedDate,
             product.ModifiedDate);
@@ -136,7 +137,7 @@ public class ProductService(
             .ToList();
     }
 
-    public async Task<ProductDto> CreateAsync(ProductRequest request)
+    public async Task<ProductDto> CreateAsync(ProductRequest request, int? accountId)
     {
         if (await categoryRepository.GetByIdAsync(request.CategoryId, true) is null)
         {
@@ -151,8 +152,9 @@ public class ProductService(
             StockQuantity = request.StockQuantity,
             ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl.Trim(),
             CategoryId = request.CategoryId,
+            AccountId = accountId,
             IsActive = request.IsActive,
-            CreatedDate = DateTime.UtcNow
+            CreatedDate = DateTime.Now
         });
 
         return DtoMapper.ToDto(product);
@@ -178,7 +180,7 @@ public class ProductService(
         product.ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl.Trim();
         product.CategoryId = request.CategoryId;
         product.IsActive = request.IsActive;
-        product.ModifiedDate = DateTime.UtcNow;
+        product.ModifiedDate = DateTime.Now;
         await repository.UpdateAsync(product);
         return true;
     }
@@ -192,7 +194,7 @@ public class ProductService(
         }
 
         product.IsActive = false;
-        product.ModifiedDate = DateTime.UtcNow;
+        product.ModifiedDate = DateTime.Now;
         await repository.UpdateAsync(product);
         return true;
     }
@@ -340,6 +342,7 @@ public class OrderService(
         if (cart is null || !cart.CartItems.Any())
             return (null, "Cart is empty.");
 
+        var checkedItems = new List<(CartItem CartItem, Product Product)>();
         var orderItems = new List<OrderItem>();
         foreach (var ci in cart.CartItems)
         {
@@ -349,15 +352,19 @@ public class OrderService(
             if (ci.Quantity > product.StockQuantity)
                 return (null, $"Insufficient stock for '{product.ProductName}'.");
 
+            checkedItems.Add((ci, product));
             orderItems.Add(new OrderItem
             {
                 ProductId = ci.ProductId,
                 Quantity = ci.Quantity,
                 UnitPrice = product.Price
             });
+        }
 
+        foreach (var (ci, product) in checkedItems)
+        {
             product.StockQuantity -= ci.Quantity;
-            product.ModifiedDate = DateTime.UtcNow;
+            product.ModifiedDate = DateTime.Now;
             await productRepository.UpdateAsync(product);
         }
 
