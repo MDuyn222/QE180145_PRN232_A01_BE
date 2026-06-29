@@ -50,12 +50,12 @@ public async Task<IActionResult> Search(
 
 
     [HttpGet("all")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "User,Admin")]
 public async Task<IActionResult> GetAll() =>
     Ok(await service.GetAllAsync(true));
 
 [HttpPost]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "User,Admin")]
 public async Task<IActionResult> Create(ProductRequest request)
 {
     try
@@ -70,7 +70,7 @@ public async Task<IActionResult> Create(ProductRequest request)
 }
 
 [HttpPut("{id:int}")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "User,Admin")]
 public async Task<IActionResult> Update(int id, ProductRequest request)
 {
     try
@@ -86,7 +86,7 @@ public async Task<IActionResult> Update(int id, ProductRequest request)
 }
 
 [HttpDelete("{id:int}")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "User,Admin")]
 public async Task<IActionResult> SoftDelete(int id) =>
     await service.SoftDeleteAsync(id)
         ? NoContent()

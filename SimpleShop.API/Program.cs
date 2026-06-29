@@ -1,4 +1,5 @@
 using System.Text;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -75,7 +76,8 @@ builder.Services
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
             ClockSkew = TimeSpan.Zero,
-	    RoleClaimType = "role"
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = ClaimTypes.Role
         };
     });
 
