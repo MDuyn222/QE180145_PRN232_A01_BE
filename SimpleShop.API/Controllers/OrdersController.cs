@@ -15,10 +15,17 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     [HttpPost("checkout")]
     public async Task<IActionResult> Checkout()
     {
-        var (order, error) = await orderService.CheckoutAsync(AccountId);
-        return order is not null
-            ? Ok(new { message = "Order placed successfully.", order })
-            : BadRequest(new { message = error });
+        try
+        {
+            var (order, error) = await orderService.CheckoutAsync(AccountId);
+            return order is not null
+                ? Ok(new { message = "Order placed successfully.", order })
+                : BadRequest(new { message = error ?? "Checkout failed." });
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
     }
 
     [HttpGet]
@@ -29,6 +36,8 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     public async Task<IActionResult> GetOrder(int orderId)
     {
         var order = await orderService.GetOrderAsync(orderId, AccountId);
-        return order is null ? NotFound(new { message = "Order not found." }) : Ok(order);
+        return order is null
+            ? NotFound(new { message = "Order not found." })
+            : Ok(order);
     }
 }

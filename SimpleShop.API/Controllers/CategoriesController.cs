@@ -14,12 +14,12 @@ public class CategoriesController(ICategoryService service) : ControllerBase
         Ok(await service.GetAllAsync(false));
 
     [HttpGet("all")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IActionResult> GetAll() =>
         Ok(await service.GetAllAsync(true));
 
     [HttpGet("search")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IActionResult> Search([FromQuery] string name = "") =>
         Ok(await service.SearchAsync(name));
 
@@ -27,11 +27,13 @@ public class CategoriesController(ICategoryService service) : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var category = await service.GetAsync(id, false);
-        return category is null ? NotFound(new { message = "Category not found." }) : Ok(category);
+        return category is null
+            ? NotFound(new { message = "Category not found." })
+            : Ok(category);
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IActionResult> Create(CategoryRequest request)
     {
         var category = await service.CreateAsync(request);
@@ -39,14 +41,14 @@ public class CategoriesController(ICategoryService service) : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IActionResult> Update(int id, CategoryRequest request) =>
         await service.UpdateAsync(id, request)
             ? NoContent()
             : NotFound(new { message = "Category not found." });
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await service.DeleteAsync(id);

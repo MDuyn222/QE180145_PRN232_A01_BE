@@ -47,5 +47,5 @@ public interface IOrderRepository
 {
     Task<List<Order>> GetByAccountIdAsync(int accountId);
     Task<Order?> GetByIdAsync(int orderId, int accountId);
-    Task<Order> AddAsync(Order order);
+    Task<Order> AddAndClearCartAsync(Order order, int cartId);
 }

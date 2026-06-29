@@ -22,10 +22,21 @@ public class OrderRepository(SimpleShopDbContext dbContext) : IOrderRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(o => o.OrderId == orderId && o.AccountId == accountId);
 
-    public async Task<Order> AddAsync(Order order)
+    public async Task<Order> AddAndClearCartAsync(Order order, int cartId)
     {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
         dbContext.Orders.Add(order);
+
+        var cartItems = await dbContext.CartItems
+            .Where(ci => ci.CartId == cartId)
+            .ToListAsync();
+
+        dbContext.CartItems.RemoveRange(cartItems);
+
         await dbContext.SaveChangesAsync();
+        await transaction.CommitAsync();
+
         return await GetByIdAsync(order.OrderId, order.AccountId) ?? order;
     }
 }
