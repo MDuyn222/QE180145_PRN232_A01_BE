@@ -1,3 +1,9 @@
+using System.Security.Claims; 
+using Microsoft.AspNetCore.Authorization; 
+using Microsoft.AspNetCore.Mvc; 
+using SimpleShop.Service.DTOs;
+using SimpleShop.Service.Services;
+
 [ApiController]
 [Route("api/cart")]
 [Authorize(Roles = "User")]

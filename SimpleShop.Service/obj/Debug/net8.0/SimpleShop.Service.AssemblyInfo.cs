@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SimpleShop.Service")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5e4bb2ebca68f2bfcf31a28744b2fc57d0f021c7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1092db497faf8377f1565eaa95f0516424166894")]
 [assembly: System.Reflection.AssemblyProductAttribute("SimpleShop.Service")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SimpleShop.Service")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
