@@ -9,19 +9,13 @@ namespace SimpleShop.API.Controllers;
 [Route("api/categories")]
 public class CategoriesController(ICategoryService service) : ControllerBase
 {
+    // =========================
+    // PUBLIC
+    // =========================
+
     [HttpGet]
     public async Task<IActionResult> GetActive() =>
         Ok(await service.GetAllAsync(false));
-
-    [HttpGet("all")]
-    [Authorize]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await service.GetAllAsync(true));
-
-    [HttpGet("search")]
-    [Authorize]
-    public async Task<IActionResult> Search([FromQuery] string name = "") =>
-        Ok(await service.SearchAsync(name));
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
@@ -32,8 +26,22 @@ public class CategoriesController(ICategoryService service) : ControllerBase
             : Ok(category);
     }
 
+    // =========================
+    // ADMIN ONLY
+    // =========================
+
+    [HttpGet("all")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAll() =>
+    Ok(await service.GetAllAsync(true));
+
+    [HttpGet("search")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Search([FromQuery] string name = "") =>
+    Ok(await service.SearchAsync(name));
+
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(CategoryRequest request)
     {
         var category = await service.CreateAsync(request);
@@ -41,21 +49,20 @@ public class CategoriesController(ICategoryService service) : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, CategoryRequest request) =>
         await service.UpdateAsync(id, request)
             ? NoContent()
             : NotFound(new { message = "Category not found." });
 
     [HttpDelete("{id:int}")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await service.DeleteAsync(id);
+
         if (result.Success)
-        {
             return NoContent();
-        }
 
         return result.Error == "Category not found."
             ? NotFound(new { message = result.Error })

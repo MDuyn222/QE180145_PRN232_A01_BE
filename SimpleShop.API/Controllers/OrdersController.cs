@@ -10,7 +10,10 @@ namespace SimpleShop.API.Controllers;
 [Authorize(Roles = "User")]
 public class OrdersController(IOrderService orderService) : ControllerBase
 {
-    private int AccountId => int.Parse(User.FindFirstValue("accountId")!);
+    private int AccountId =>
+    int.TryParse(User.FindFirstValue("accountId"), out var id)
+        ? id
+        : throw new UnauthorizedAccessException("Invalid token");
 
     [HttpPost("checkout")]
     public async Task<IActionResult> Checkout()
